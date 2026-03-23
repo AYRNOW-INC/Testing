@@ -21,10 +21,11 @@ _Last updated: 2026-03-23_
 | `07-testing/` | Test guides, QA audit, E2E checklist | 4 |
 | `08-audit/` | Wireframe audits, forensic audit, screen inventory | 7 |
 | `09-build-memory/` | Build state, logs, progress, blockers, next actions | 10 |
-| `10-po-agent/` | PO agent instructions, master todo, agent README | 3 |
-| `11-mr-coffee/` | Agent identity, session handoff, preferences, rules | 5 |
+| `10-po-agent/` | PO agent instructions, master todo, agent README, PO v3 | 4 |
+| `11-mr-coffee/` | Agent identity, session handoff, preferences, team playbook | 8 |
 | `12-release/` | Release checklist, verification, incident/rollback | 4 |
-| **Total** | | **77** |
+| `13-agent-definitions/` | Custom agent definitions: UX Guardian, Backend Dev, Frontend Dev, QA, Security, PO | 6 |
+| **Total** | | **90** |
 
 ---
 
@@ -51,6 +52,12 @@ _Last updated: 2026-03-23_
 2. `02-architecture/SCHEMA_OVERVIEW.md` — Database schema
 3. `03-api/API_OVERVIEW.md` — All API endpoints
 4. `02-architecture/ROUTE_MAP.md` — Frontend routing
+
+### Agent Team
+1. `13-agent-definitions/` — All 6 custom agent definitions
+2. `11-mr-coffee/TEAM_PLAYBOOK.md` — How agents work together
+3. `11-mr-coffee/MD_SYNC_GUIDE.md` — Doc sync protocol
+4. Key agent: `13-agent-definitions/ux-guardian.md` — Mandatory on all frontend work
 
 ---
 
