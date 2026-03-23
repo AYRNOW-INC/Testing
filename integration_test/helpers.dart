@@ -3,15 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Shared E2E test helpers for AYRNOW integration tests.
-
-/// Generate a unique email using timestamp to avoid conflicts.
-String uniqueEmail(String prefix) {
-  final ts = DateTime.now().millisecondsSinceEpoch;
-  return '${prefix}_$ts@test.ayrnow.app';
-}
-
-const String testPassword = 'Test1234A';
+// Shared E2E test helpers for AYRNOW integration tests.
+// Test data constants are in test_data.dart — import that for uniqueEmail, testPassword, etc.
 
 /// Find a TextField/TextFormField by its hint text.
 Finder byHint(String hint) => find.byWidgetPredicate(

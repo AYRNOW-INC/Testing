@@ -1,26 +1,28 @@
-/// TEST PLAN: TC-06 — Lease Settings Flow (API-driven)
-///
-/// PRECONDITIONS:
-///   - Backend running on localhost:8080
-///   - Landlord account with at least one property
-///
-/// TEST CASES:
-///   TC-06-01: API — Get current lease settings for property
-///   TC-06-02: API — Update lease term, rent, deposit, due day
-///   TC-06-03: API — Verify updated settings persisted
-///   TC-06-04: API — Verify grace period and late fee saved
-///
-/// EXPECTED BEHAVIOR:
-///   - GET /properties/{id}/lease-settings returns defaults
-///   - PUT /properties/{id}/lease-settings saves new values
-///   - Settings apply to new leases created under this property
-///
-/// PASS CRITERIA:
-///   - All 4 test cases pass
-///   - Values round-trip correctly through API
+// ignore_for_file: file_names
+// TEST PLAN: TC-06 — Lease Settings Flow (API-driven)
+//
+// PRECONDITIONS:
+//   - Backend running on localhost:8080
+//   - Landlord account with at least one property
+//
+// TEST CASES:
+//   TC-06-01: API — Get current lease settings for property
+//   TC-06-02: API — Update lease term, rent, deposit, due day
+//   TC-06-03: API — Verify updated settings persisted
+//   TC-06-04: API — Verify grace period and late fee saved
+//
+// EXPECTED BEHAVIOR:
+//   - GET /properties/{id}/lease-settings returns defaults
+//   - PUT /properties/{id}/lease-settings saves new values
+//   - Settings apply to new leases created under this property
+//
+// PASS CRITERIA:
+//   - All 4 test cases pass
+//   - Values round-trip correctly through API
 
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'test_data.dart';
@@ -39,13 +41,13 @@ void main() {
     final pid = props.first['id'];
 
     // TC-06-01: Get current settings
-    print('[TC-06-01] Get lease settings');
+    debugPrint('[TC-06-01] Get lease settings');
     final settings = await _get('/properties/$pid/lease-settings', token: token);
     expect(settings, isNotNull);
-    print('[TC-06-01] PASS — Term: ${settings['defaultLeaseTermMonths']} months');
+    debugPrint('[TC-06-01] PASS — Term: ${settings['defaultLeaseTermMonths']} months');
 
     // TC-06-02: Update settings
-    print('[TC-06-02] Update lease settings');
+    debugPrint('[TC-06-02] Update lease settings');
     final updated = await _put('/properties/$pid/lease-settings', {
       'defaultLeaseTermMonths': 12,
       'defaultMonthlyRent': 1500.0,
@@ -55,27 +57,27 @@ void main() {
       'lateFeeAmount': 50.0,
     }, token: token);
     expect(updated, isNotNull);
-    print('[TC-06-02] PASS');
+    debugPrint('[TC-06-02] PASS');
 
     // TC-06-03: Verify persistence
-    print('[TC-06-03] Verify settings persisted');
+    debugPrint('[TC-06-03] Verify settings persisted');
     final verify = await _get('/properties/$pid/lease-settings', token: token);
     expect(verify['defaultLeaseTermMonths'], equals(12));
     expect(verify['defaultMonthlyRent'], equals(1500.0));
     expect(verify['defaultSecurityDeposit'], equals(1500.0));
     expect(verify['paymentDueDay'], equals(1));
-    print('[TC-06-03] PASS');
+    debugPrint('[TC-06-03] PASS');
 
     // TC-06-04: Verify grace period and late fee
-    print('[TC-06-04] Verify grace period and late fee');
+    debugPrint('[TC-06-04] Verify grace period and late fee');
     expect(verify['gracePeriodDays'], equals(5));
     expect(verify['lateFeeAmount'], equals(50.0));
-    print('[TC-06-04] PASS');
+    debugPrint('[TC-06-04] PASS');
 
-    print('');
-    print('========================================');
-    print('  TC-06: LEASE SETTINGS — ALL PASS');
-    print('========================================');
+    debugPrint('');
+    debugPrint('========================================');
+    debugPrint('  TC-06: LEASE SETTINGS — ALL PASS');
+    debugPrint('========================================');
   });
 }
 

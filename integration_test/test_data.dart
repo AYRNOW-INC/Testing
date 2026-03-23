@@ -1,6 +1,6 @@
-/// Centralized test data constants for all AYRNOW E2E tests.
-///
-/// Usage: import 'test_data.dart';
+// Centralized test data constants for all AYRNOW E2E tests.
+//
+// Usage: import 'test_data.dart';
 
 // -- Test Accounts (pre-existing in DB) --
 const existingLandlordEmail = 'landlord@ayrnow.app';

@@ -1,32 +1,34 @@
-/// TEST PLAN: TC-05 — Unit Management Flow (API-driven)
-///
-/// PRECONDITIONS:
-///   - Backend running on localhost:8080
-///   - Landlord account exists with at least one property
-///
-/// TEST CASES:
-///   TC-05-01: API — Login as landlord, get properties list
-///   TC-05-02: API — Get property detail with units
-///   TC-05-03: API — Update unit name, type, floor, and rent
-///   TC-05-04: API — Verify unit update persisted
-///   TC-05-05: API — Verify unit status is VACANT for new unit
-///
-/// NOTE: Unit editing via UI uses EditUnitScreen which requires
-/// navigating deep into PropertyDetail → Unit row tap. This test
-/// uses API calls for reliability. UI navigation tested in TC-04.
-///
-/// EXPECTED BEHAVIOR:
-///   - PUT /properties/{id}/units/{id} returns updated unit
-///   - Unit fields (name, type, rent) persist correctly
-///   - New units default to VACANT status
-///
-/// PASS CRITERIA:
-///   - All 5 API test cases pass
-///   - Response codes are 200
-///   - Data matches what was sent
+// ignore_for_file: file_names
+// TEST PLAN: TC-05 — Unit Management Flow (API-driven)
+//
+// PRECONDITIONS:
+//   - Backend running on localhost:8080
+//   - Landlord account exists with at least one property
+//
+// TEST CASES:
+//   TC-05-01: API — Login as landlord, get properties list
+//   TC-05-02: API — Get property detail with units
+//   TC-05-03: API — Update unit name, type, floor, and rent
+//   TC-05-04: API — Verify unit update persisted
+//   TC-05-05: API — Verify unit status is VACANT for new unit
+//
+// NOTE: Unit editing via UI uses EditUnitScreen which requires
+// navigating deep into PropertyDetail → Unit row tap. This test
+// uses API calls for reliability. UI navigation tested in TC-04.
+//
+// EXPECTED BEHAVIOR:
+//   - PUT /properties/{id}/units/{id} returns updated unit
+//   - Unit fields (name, type, rent) persist correctly
+//   - New units default to VACANT status
+//
+// PASS CRITERIA:
+//   - All 5 API test cases pass
+//   - Response codes are 200
+//   - Data matches what was sent
 
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'test_data.dart';
@@ -36,31 +38,31 @@ void main() {
 
   testWidgets('TC-05: Unit Management Flow (API)', (tester) async {
     // TC-05-01: Login and get token
-    print('[TC-05-01] Login as landlord via API');
+    debugPrint('[TC-05-01] Login as landlord via API');
     final loginRes = await _apiPost('/auth/login', {
       'email': existingLandlordEmail,
       'password': existingPassword,
     });
     expect(loginRes['accessToken'], isNotNull);
     final token = loginRes['accessToken'] as String;
-    print('[TC-05-01] PASS');
+    debugPrint('[TC-05-01] PASS');
 
     // TC-05-02: Get properties
-    print('[TC-05-02] Get properties list');
+    debugPrint('[TC-05-02] Get properties list');
     final props = await _apiGetList('/properties', token: token);
     expect(props, isNotEmpty);
     final propertyId = props.first['id'];
-    print('[TC-05-02] PASS — Found ${props.length} properties');
+    debugPrint('[TC-05-02] PASS — Found ${props.length} properties');
 
     // Get property detail with units
     final detail = await _apiGet('/properties/$propertyId', token: token);
     final units = detail['unitSpaces'] as List<dynamic>? ?? [];
     expect(units, isNotEmpty);
     final unitId = units.first['id'];
-    print('   >> Property "${ detail['name']}" has ${units.length} unit(s)');
+    debugPrint('   >> Property "${ detail['name']}" has ${units.length} unit(s)');
 
     // TC-05-03: Update unit
-    print('[TC-05-03] Update unit details via API');
+    debugPrint('[TC-05-03] Update unit details via API');
     final updateRes = await _apiPut('/properties/$propertyId/units/$unitId', {
       'name': 'Unit 101-Updated',
       'unitType': 'APARTMENT',
@@ -68,21 +70,21 @@ void main() {
       'monthlyRent': 1800.0,
     }, token: token);
     expect(updateRes['name'], equals('Unit 101-Updated'));
-    print('[TC-05-03] PASS');
+    debugPrint('[TC-05-03] PASS');
 
     // TC-05-04: Verify persistence
-    print('[TC-05-04] Verify update persisted');
+    debugPrint('[TC-05-04] Verify update persisted');
     final verifyDetail = await _apiGet('/properties/$propertyId', token: token);
     final verifyUnits = verifyDetail['unitSpaces'] as List<dynamic>;
     final updated = verifyUnits.firstWhere((u) => u['id'] == unitId);
     expect(updated['name'], equals('Unit 101-Updated'));
     expect(updated['monthlyRent'], equals(1800.0));
-    print('[TC-05-04] PASS');
+    debugPrint('[TC-05-04] PASS');
 
     // TC-05-05: Check status
-    print('[TC-05-05] Verify unit status');
+    debugPrint('[TC-05-05] Verify unit status');
     expect(updated['status'], equals('VACANT'));
-    print('[TC-05-05] PASS');
+    debugPrint('[TC-05-05] PASS');
 
     // Restore original name
     await _apiPut('/properties/$propertyId/units/$unitId', {
@@ -91,10 +93,10 @@ void main() {
       'monthlyRent': units.first['monthlyRent'] ?? 0,
     }, token: token);
 
-    print('');
-    print('========================================');
-    print('  TC-05: UNIT MANAGEMENT — ALL PASS');
-    print('========================================');
+    debugPrint('');
+    debugPrint('========================================');
+    debugPrint('  TC-05: UNIT MANAGEMENT — ALL PASS');
+    debugPrint('========================================');
   });
 }
 

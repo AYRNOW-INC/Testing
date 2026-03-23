@@ -13,6 +13,8 @@ Testing/
   integration_test/
     helpers.dart                          # Shared test utilities
     test_data.dart                        # Centralized test constants
+    landlord_e2e_test.dart                # Full landlord E2E flow
+    tenant_e2e_test.dart                  # Full tenant E2E flow
     01_landlord_registration_test.dart    # TC-01: Landlord signup
     02_tenant_registration_test.dart      # TC-02: Tenant signup
     03_login_flow_test.dart               # TC-03: Login/logout/bad creds
@@ -26,12 +28,17 @@ Testing/
     11_rent_payment_flow_test.dart        # TC-11: Rent payment (API)
     12_move_out_flow_test.dart            # TC-12: Move-out request (API)
     13_dashboard_navigation_test.dart     # TC-13: Tab navigation (UI)
+  .github/workflows/
+    deploy-to-eb.yml                      # EB production deploy
+    deploy-to-staging.yml                 # Staging deploy
+    frontend-ci.yml                       # Flutter CI checks
   scripts/
     run_e2e.sh                            # Run full E2E suite
     run_scenario.sh                       # Run single scenario by number
   docs/
-    TEST_PLAN.md                          # Master test plan + checklist
-    QA_AUDIT_REPORT.md                    # Full QA audit (79 issues)
+    44 synced docs from main repo         # Full documentation mirror
+  Claude-Ayrnow-Coffee-MD/
+    00-index/ through 13-agent-definitions/  # Archived project docs
 ```
 
 ---
@@ -105,6 +112,22 @@ After lease:  TC-12
 
 - **[TEST_PLAN.md](docs/TEST_PLAN.md)** — Master test plan with 68 test cases and pass/fail checklist
 - **[QA_AUDIT_REPORT.md](docs/QA_AUDIT_REPORT.md)** — Full QA audit: 79 issues across frontend, backend, and E2E
+- **[docs/](docs/)** — 44 synced docs covering API, architecture, deployment, security, integrations, and more
+
+## CI/CD Workflows (synced from main repo)
+
+- `deploy-to-eb.yml` — Elastic Beanstalk production deploy
+- `deploy-to-staging.yml` — Staging environment deploy
+- `frontend-ci.yml` — Flutter analyze, test, and build checks
+
+## Recent Sync (2026-03-23)
+
+Synced from main AYRNOW-MVP repo after:
+- UX overhaul
+- Security hardening Phase 4
+- Flutter analyze cleanup
+- Integrations Phase 2
+- 10-agent team setup
 
 ---
 

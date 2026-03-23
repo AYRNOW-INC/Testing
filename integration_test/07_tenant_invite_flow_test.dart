@@ -1,29 +1,31 @@
-/// TEST PLAN: TC-07 — Tenant Invite Flow (API-driven)
-///
-/// PRECONDITIONS:
-///   - Backend running on localhost:8080
-///   - Landlord account with property and vacant unit
-///   - Unit must have name, type, and rent > 0
-///
-/// TEST CASES:
-///   TC-07-01: API — Login as landlord, find vacant unit
-///   TC-07-02: API — Send invitation to tenant email
-///   TC-07-03: API — Verify invitation created with PENDING status
-///   TC-07-04: API — Verify invite code generated
-///   TC-07-05: API — Attempt duplicate invite → should fail or warn
-///
-/// EXPECTED BEHAVIOR:
-///   - POST /invitations creates invitation with invite code
-///   - Invitation status starts as PENDING
-///   - Invite code is a short alphanumeric string
-///   - Duplicate invites for same unit/email prevented
-///
-/// PASS CRITERIA:
-///   - All 5 test cases pass
-///   - Invite code saved to /tmp for tenant test
+// ignore_for_file: file_names
+// TEST PLAN: TC-07 — Tenant Invite Flow (API-driven)
+//
+// PRECONDITIONS:
+//   - Backend running on localhost:8080
+//   - Landlord account with property and vacant unit
+//   - Unit must have name, type, and rent > 0
+//
+// TEST CASES:
+//   TC-07-01: API — Login as landlord, find vacant unit
+//   TC-07-02: API — Send invitation to tenant email
+//   TC-07-03: API — Verify invitation created with PENDING status
+//   TC-07-04: API — Verify invite code generated
+//   TC-07-05: API — Attempt duplicate invite → should fail or warn
+//
+// EXPECTED BEHAVIOR:
+//   - POST /invitations creates invitation with invite code
+//   - Invitation status starts as PENDING
+//   - Invite code is a short alphanumeric string
+//   - Duplicate invites for same unit/email prevented
+//
+// PASS CRITERIA:
+//   - All 5 test cases pass
+//   - Invite code saved to /tmp for tenant test
 
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'test_data.dart';
@@ -41,7 +43,7 @@ void main() {
     final token = loginRes['accessToken'] as String;
 
     // TC-07-01: Find vacant unit
-    print('[TC-07-01] Find vacant unit');
+    debugPrint('[TC-07-01] Find vacant unit');
     final props = await _getList('/properties', token: token);
     expect(props, isNotEmpty);
     Map<String, dynamic>? vacantUnit;
@@ -59,7 +61,7 @@ void main() {
       if (vacantUnit != null) break;
     }
     expect(vacantUnit, isNotNull, reason: 'No vacant unit found');
-    print('[TC-07-01] PASS — Unit: ${vacantUnit!['name']} (ID: ${vacantUnit['id']})');
+    debugPrint('[TC-07-01] PASS — Unit: ${vacantUnit!['name']} (ID: ${vacantUnit['id']})');
 
     // Ensure unit has rent set
     if ((vacantUnit['monthlyRent'] ?? 0) == 0) {
@@ -71,16 +73,16 @@ void main() {
     }
 
     // TC-07-02: Send invitation
-    print('[TC-07-02] Send invitation to $tenantEmail');
+    debugPrint('[TC-07-02] Send invitation to $tenantEmail');
     final inviteRes = await _post('/invitations', {
       'unitSpaceId': vacantUnit['id'],
       'tenantEmail': tenantEmail,
     }, token: token);
     expect(inviteRes, isNotNull);
-    print('[TC-07-02] PASS');
+    debugPrint('[TC-07-02] PASS');
 
     // TC-07-03: Verify status
-    print('[TC-07-03] Verify invitation status');
+    debugPrint('[TC-07-03] Verify invitation status');
     final invitations = await _getList('/invitations', token: token);
     final invite = invitations.lastWhere(
       (i) => i['tenantEmail'] == tenantEmail,
@@ -88,35 +90,35 @@ void main() {
     );
     expect(invite, isNotNull);
     expect(invite['status'], anyOf(equals('PENDING'), equals('SENT')));
-    print('[TC-07-03] PASS — Status: ${invite['status']}');
+    debugPrint('[TC-07-03] PASS — Status: ${invite['status']}');
 
     // TC-07-04: Verify invite code
-    print('[TC-07-04] Verify invite code generated');
+    debugPrint('[TC-07-04] Verify invite code generated');
     final inviteCode = invite['inviteCode']?.toString() ?? '';
     expect(inviteCode, isNotEmpty);
     // Save for tenant test
     File('/tmp/ayrnow_e2e_invite_code.txt').writeAsStringSync(inviteCode);
     File('/tmp/ayrnow_e2e_tenant_email.txt').writeAsStringSync(tenantEmail);
-    print('[TC-07-04] PASS — Code: $inviteCode');
+    debugPrint('[TC-07-04] PASS — Code: $inviteCode');
 
     // TC-07-05: Duplicate invite attempt
-    print('[TC-07-05] Duplicate invite attempt');
+    debugPrint('[TC-07-05] Duplicate invite attempt');
     try {
       await _post('/invitations', {
         'unitSpaceId': vacantUnit['id'],
         'tenantEmail': tenantEmail,
       }, token: token);
-      print('[TC-07-05] PASS — Server allowed (may create duplicate)');
+      debugPrint('[TC-07-05] PASS — Server allowed (may create duplicate)');
     } catch (e) {
-      print('[TC-07-05] PASS — Server rejected duplicate: $e');
+      debugPrint('[TC-07-05] PASS — Server rejected duplicate: $e');
     }
 
-    print('');
-    print('========================================');
-    print('  TC-07: TENANT INVITE — ALL PASS');
-    print('  Tenant: $tenantEmail');
-    print('  Code: ${File('/tmp/ayrnow_e2e_invite_code.txt').readAsStringSync()}');
-    print('========================================');
+    debugPrint('');
+    debugPrint('========================================');
+    debugPrint('  TC-07: TENANT INVITE — ALL PASS');
+    debugPrint('  Tenant: $tenantEmail');
+    debugPrint('  Code: ${File('/tmp/ayrnow_e2e_invite_code.txt').readAsStringSync()}');
+    debugPrint('========================================');
   });
 }
 

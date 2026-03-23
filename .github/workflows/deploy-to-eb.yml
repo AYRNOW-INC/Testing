@@ -1,0 +1,84 @@
+# =============================================================
+# AYRNOW — GitHub Actions: Build & Deploy to AWS Elastic Beanstalk
+# =============================================================
+# Triggers on push to main branch (backend changes only).
+# Builds the Spring Boot JAR with Maven + JDK 21,
+# then deploys to Elastic Beanstalk via OIDC-based auth.
+#
+# REQUIRED GITHUB SECRETS (repo Settings > Secrets > Actions):
+#   AWS_ROLE_ARN            - IAM role ARN for OIDC federation
+#   AWS_REGION              - e.g. us-east-1
+#   EB_APPLICATION_NAME     - e.g. ayrnow-backend
+#   EB_ENVIRONMENT_NAME     - e.g. ayrnow-backend-env
+# =============================================================
+name: Deploy AYRNOW Backend to Elastic Beanstalk
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - '.ebextensions/**'
+      - '.github/workflows/deploy-to-eb.yml'
+  workflow_dispatch:
+
+permissions:
+  id-token: write   # Required for OIDC token
+  contents: read     # Required for actions/checkout
+
+jobs:
+  build-and-deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'corretto'
+          cache: 'maven'
+
+      - name: Build with Maven
+        working-directory: backend
+        run: mvn clean package -B
+
+      - name: Create deployment package
+        run: |
+          mkdir -p deploy-package/.ebextensions
+          cp backend/target/ayrnow-backend-*-SNAPSHOT.jar deploy-package/application.jar
+          echo "web: /bin/sh -c 'exec java -Djava.security.egd=file:/dev/./urandom -jar application.jar --server.port=5000 2>&1'" > deploy-package/Procfile
+          cp -r .ebextensions/* deploy-package/.ebextensions/ 2>/dev/null || true
+          cd deploy-package
+          zip -r ../ayrnow-deploy-${{ github.sha }}.zip .
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Deploy to Elastic Beanstalk
+        uses: einaregilsson/beanstalk-deploy@v22
+        with:
+          aws_access_key: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws_session_token: ${{ env.AWS_SESSION_TOKEN }}
+          application_name: ${{ secrets.EB_APPLICATION_NAME }}
+          environment_name: ${{ secrets.EB_ENVIRONMENT_NAME }}
+          version_label: "ayrnow-${{ github.sha }}"
+          region: ${{ secrets.AWS_REGION }}
+          deployment_package: ayrnow-deploy-${{ github.sha }}.zip
+          use_existing_version_if_available: true
+
+      - name: Verify deployment
+        run: |
+          echo "Waiting 30s for deployment to stabilize..."
+          sleep 30
+          aws elasticbeanstalk describe-environment-health \
+            --environment-name ${{ secrets.EB_ENVIRONMENT_NAME }} \
+            --attribute-names All \
+            --region ${{ secrets.AWS_REGION }} || echo "Health check pending..."
