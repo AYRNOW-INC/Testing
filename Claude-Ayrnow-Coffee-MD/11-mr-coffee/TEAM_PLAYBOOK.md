@@ -11,6 +11,14 @@
 - **Authority:** Full — can spawn, direct, and shut down any agent
 - **Rules:** Always use swarm mode. Always git pull first. Never push without asking.
 
+### Planning Architect — Task Strategist
+- **Role:** Breaks down high-level goals into detailed, dependency-ordered task plans
+- **Authority:** Read-only codebase + write to MASTER_TODO.md
+- **When to spawn:** When Imran gives a new feature/goal that needs decomposition
+- **Definition:** `.claude/agents/planner.md`
+- **Key rule:** Researches codebase BEFORE planning. Loops until plan is airtight. Every frontend task gets UX-Review flag.
+- **Output:** Writes tasks to MASTER_TODO.md as new WAVE, then PO Agent executes
+
 ### UX Guardian — Design Authority
 - **Role:** Reviews EVERY frontend change against wireframes
 - **Authority:** Veto power on UI changes
@@ -54,6 +62,21 @@
 ---
 
 ## Workflow Patterns
+
+### Pattern 0: New Feature / Big Goal (Planner → PO → Team)
+```
+Imran gives high-level goal (e.g., "add maintenance module")
+  → Mr Coffee spawns Planning Architect
+  → Planner researches codebase thoroughly
+  → Planner breaks goal into Waves A-F with detailed tasks
+  → Planner writes tasks to MASTER_TODO.md
+  → Planner loops until plan is airtight (no gaps)
+  → Planner reports summary to Mr Coffee
+  → Mr Coffee reviews plan with Imran
+  → Mr Coffee spawns PO Agent to execute
+  → PO Agent runs the team (Backend + Frontend + UX + QA)
+  → Continuous loop until all tasks complete
+```
 
 ### Pattern 1: Single Feature (most common)
 ```
