@@ -173,6 +173,66 @@ If an agent is blocked by missing credentials or 3+ consecutive failures, it rep
 
 ---
 
+## Permission Structure (AUTHORITATIVE)
+
+Permissions are layered. Each layer serves a different execution context:
+
+### Layer 1: Project settings.json (interactive sessions)
+**File:** `.claude/settings.json`
+**Covers:** Mr Coffee's interactive CLI session + any agents spawned via Agent tool
+**What it does:** Auto-allows 84 tool/command patterns (Read, Write, Edit, Bash, Agent, etc.)
+**Denies:** `git push`, `aws` CLI (always prompts Imran)
+
+### Layer 2: Agent spawn mode (sub-agents)
+**Set by:** Mr Coffee or PO Agent when calling the Agent tool
+**Parameter:** `mode: "bypassPermissions"`
+**Why needed:** Sub-agents inherit parent permissions but may hit edge cases. Bypass ensures zero prompts.
+
+### Layer 3: po_agent.sh (CLI-launched PO sessions)
+**Flag:** `--dangerously-skip-permissions`
+**Covers:** The PO Agent running autonomously in a separate terminal
+**Why needed:** CLI sessions don't read project settings.json the same way. The flag is the only way to ensure full autonomy.
+
+### Spawn Protocol — MANDATORY for all agents
+
+When spawning ANY agent via the Agent tool, ALWAYS use `mode: "bypassPermissions"`:
+
+```python
+# CORRECT — every agent gets bypass mode
+Agent(
+    name="backend-dev",
+    description="TASK-XX: description",
+    prompt="...",
+    mode="bypassPermissions",         # <-- MANDATORY
+    subagent_type="general-purpose"
+)
+
+# Writers (code changes)
+Agent(name="backend-dev",      mode="bypassPermissions", ...)
+Agent(name="frontend-dev",     mode="bypassPermissions", ...)
+Agent(name="error-recovery",   mode="bypassPermissions", ...)
+
+# Readers (review/scan only)
+Agent(name="task-gatekeeper",  mode="bypassPermissions", ...)
+Agent(name="ux-guardian",      mode="bypassPermissions", ...)
+Agent(name="qa-tester",        mode="bypassPermissions", ...)
+Agent(name="security-monitor", mode="bypassPermissions", ...)
+Agent(name="integration-tester", mode="bypassPermissions", ...)
+
+# Orchestrators
+Agent(name="planner",          mode="bypassPermissions", ...)
+Agent(name="po-agent",         mode="bypassPermissions", ...)
+```
+
+### Why ALL agents get bypassPermissions
+- Even read-only agents (QA, Security) run Bash for build checks and scripts
+- The Task Gatekeeper reads files to assess feasibility
+- The Integration Tester runs curl commands
+- Any permission prompt breaks autonomous execution
+- The `settings.json` deny list still blocks `git push` and `aws` — bypass doesn't override deny rules
+
+---
+
 ## Communication Protocol
 
 ### How Mr Coffee Spawns a Team
@@ -186,13 +246,13 @@ TaskCreate(subject="Frontend: Build new screen")
 TaskCreate(subject="UX Review: Verify screen against wireframe")
 TaskCreate(subject="QA: Verify build + test flow")
 
-# Spawn agents in parallel (independent work)
-Agent(name="backend-dev", team_name="feature-xyz", prompt="...")
-Agent(name="frontend-dev", team_name="feature-xyz", prompt="...")
+# Spawn agents in parallel — ALL with bypassPermissions
+Agent(name="backend-dev", team_name="feature-xyz", mode="bypassPermissions", prompt="...")
+Agent(name="frontend-dev", team_name="feature-xyz", mode="bypassPermissions", prompt="...")
 
-# After devs complete, spawn reviewers
-Agent(name="ux-guardian", team_name="feature-xyz", prompt="...")
-Agent(name="qa-tester", team_name="feature-xyz", prompt="...")
+# After devs complete, spawn reviewers — ALSO with bypassPermissions
+Agent(name="ux-guardian", team_name="feature-xyz", mode="bypassPermissions", prompt="...")
+Agent(name="qa-tester", team_name="feature-xyz", mode="bypassPermissions", prompt="...")
 ```
 
 ### How Agents Report to Mr Coffee

@@ -41,6 +41,7 @@ Read relevant source files to understand what exists. Give dev agents precise co
 - For frontend work → spawn **Frontend Developer** agent
 - For full-stack → spawn both in parallel
 - **ALWAYS** include UX Guardian review for any frontend change
+- **ALWAYS** spawn every agent with `mode: "bypassPermissions"` — no exceptions
 
 ### Step 4: UX REVIEW (Frontend Tasks)
 After frontend dev completes, spawn **UX Guardian** to review:

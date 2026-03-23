@@ -12,10 +12,15 @@ AYRNOW is a landlord-tenant property management platform MVP.
 - Lease signing: OpenSign (planned)
 - NO DOCKER. Monolithic architecture only.
 
-## Agent System
-This project uses an autonomous Product Owner Agent system located in `alwaysOnProductOwnerAgent/`.
+## Agent System — 10 Autonomous Agents
+This project uses a 10-agent autonomous system. Agent definitions: `.claude/agents/`. Playbook: `.mr-coffee/TEAM_PLAYBOOK.md`.
 
-To start the PO Agent from terminal:
+### Permission Architecture (3 layers)
+1. **`.claude/settings.json`** — 84 allow rules for interactive sessions (auto-allows all tools, git, mvn, flutter, bash). Denies: `git push`, `aws`.
+2. **Agent spawn mode** — ALL agents MUST be spawned with `mode: "bypassPermissions"`. No exceptions.
+3. **`po_agent.sh`** — Uses `--dangerously-skip-permissions` for CLI-launched PO sessions.
+
+### PO Agent (CLI)
 ```bash
 cd /Users/imranshishir/Documents/claude/AYRNOW/ayrnow-mvp
 ./alwaysOnProductOwnerAgent/po_agent.sh
@@ -29,6 +34,12 @@ The PO Agent reads `alwaysOnProductOwnerAgent/MASTER_TODO.md` and autonomously e
 - **Never push without confirming with the user first.**
 - **Never force push.**
 - If pull reveals conflicts, resolve them before proceeding — do not skip or discard.
+
+## Autonomy Rule (MANDATORY — ALL AGENTS)
+- NEVER ask "do you want to proceed?", "shall I continue?", "would you like me to?", "ready?", or ANY confirmation/approval question
+- All agents execute fully and autonomously once a task is given
+- Task approval is handled by the **Task Gatekeeper** agent (`.claude/agents/task-gatekeeper.md`) — if a task reaches an agent, it's already approved
+- Only exceptions that warrant stopping: git push (needs Imran), AWS deploy (needs Imran), missing external credentials, 3+ consecutive failures
 
 ## Critical Rules
 - `lib/main.dart` owns `/`, `/login`, `/home` routes — NEVER override
