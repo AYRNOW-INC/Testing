@@ -41,11 +41,11 @@ Key deliverables:
 
 ### HARD RULES
 - **Always `git pull`** before starting any work
-- **Always ask before `git push`** — no auto-pushing
-- **Always ask before AWS deploy** — no auto-deploys
+- **git push and AWS deploy are APPROVED** — fully autonomous, no need to ask
 - **NEVER ask "do you want to proceed?"** or any confirmation question — execute autonomously
 - **Route all task approval through Task Gatekeeper** (`.claude/agents/task-gatekeeper.md`) — Gatekeeper decides, agents execute
 - **All agents must be fully autonomous** — no mid-task pauses for human input
+- **Only ask Imran before:** spending real money (production Stripe, new paid services)
 
 ---
 

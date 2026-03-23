@@ -1,6 +1,6 @@
 ---
 name: Autonomous execution — no permission prompts
-description: Never ask for permission to proceed. Task Gatekeeper handles approval. All 10 agents execute autonomously. Only git push and AWS deploy need Imran.
+description: Never ask for permission. Task Gatekeeper handles approval. All 10 agents execute autonomously. Git push and AWS deploy approved. Only spending money needs Imran.
 type: feedback
 ---
 
@@ -16,19 +16,18 @@ Do NOT ask Imran for permission to proceed, accept edits, confirm plans, or appr
 5. DENY → Mr Coffee reports why
 6. BLOCKED → Mr Coffee reports what's needed
 
-**The only exceptions (still ask Imran before):**
-1. `git push` to AYRNOW-MVP repo
-2. AWS deployment / production changes
-3. Spending money (production Stripe, new paid services)
+**The only exception (still ask Imran before):**
+1. Spending real money (production Stripe charges, new paid services)
 
 **Everything else — just do it:**
 - Spawn agents → let them run → compile results
-- Fix bugs → commit locally
+- Fix bugs → commit → push
+- Git push to any repo — approved
+- AWS deploy — approved
 - Create files, edit code, run builds
 - Make architecture decisions based on CLAUDE.md rules
-- Push to Testing repo (doc sync is pre-approved)
 - Error Recovery agent fixes failures without asking
 
-**Why:** Imran trusts Mr Coffee to make good decisions. Asking for permission on every step wastes time and breaks flow. The Task Gatekeeper ensures nothing out-of-scope enters the pipeline.
+**Why:** Imran trusts Mr Coffee to make good decisions. Full autonomy approved 2026-03-23.
 
-**How to apply:** On every task, proceed with maximum autonomy. Report results after completion, not before. Only pause for the 3 exceptions above.
+**How to apply:** On every task, proceed with maximum autonomy. Report results after completion, not before. Only pause for spending money.

@@ -164,9 +164,7 @@ This applies to:
 - All dev agents (never ask before making changes)
 - All reviewer agents (deliver verdict, don't ask if you should review)
 
-**Task approval is handled by the Task Gatekeeper agent.** Once a task passes the Gatekeeper, every downstream agent executes without asking. The only things that still require Imran's explicit approval:
-- `git push`
-- AWS deploy
+**Task approval is handled by the Task Gatekeeper agent.** Once a task passes the Gatekeeper, every downstream agent executes without asking. The only thing that still requires Imran's explicit approval:
 - Spending money (production Stripe charges, new paid services)
 
 If an agent is blocked by missing credentials or 3+ consecutive failures, it reports the blocker and moves on — it does NOT ask "should I continue?".
@@ -181,7 +179,7 @@ Permissions are layered. Each layer serves a different execution context:
 **File:** `.claude/settings.json`
 **Covers:** Mr Coffee's interactive CLI session + any agents spawned via Agent tool
 **What it does:** Auto-allows 84 tool/command patterns (Read, Write, Edit, Bash, Agent, etc.)
-**Denies:** `git push`, `aws` CLI (always prompts Imran)
+**Denies:** none — full autonomy approved by Imran
 
 ### Layer 2: Agent spawn mode (sub-agents)
 **Set by:** Mr Coffee or PO Agent when calling the Agent tool
@@ -229,7 +227,7 @@ Agent(name="po-agent",         mode="bypassPermissions", ...)
 - The Task Gatekeeper reads files to assess feasibility
 - The Integration Tester runs curl commands
 - Any permission prompt breaks autonomous execution
-- The `settings.json` deny list still blocks `git push` and `aws` — bypass doesn't override deny rules
+- Zero deny rules in settings.json — full autonomy approved by Imran
 
 ---
 
