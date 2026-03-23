@@ -10,158 +10,101 @@ Central repository for all AYRNOW testing assets: integration tests, E2E automat
 
 ```
 Testing/
-  integration_test/       # Flutter E2E integration tests
-    helpers.dart           # Shared test utilities (finders, API helpers, coordination)
-    landlord_e2e_test.dart # Landlord flow: Register -> Property -> Unit -> Invite
-    tenant_e2e_test.dart   # Tenant flow: Accept invite -> Register -> Onboard -> Pay
+  integration_test/
+    helpers.dart                          # Shared test utilities
+    test_data.dart                        # Centralized test constants
+    01_landlord_registration_test.dart    # TC-01: Landlord signup
+    02_tenant_registration_test.dart      # TC-02: Tenant signup
+    03_login_flow_test.dart               # TC-03: Login/logout/bad creds
+    04_add_property_flow_test.dart        # TC-04: 3-step property wizard
+    05_unit_management_flow_test.dart     # TC-05: Unit CRUD (API)
+    06_lease_settings_flow_test.dart      # TC-06: Lease defaults (API)
+    07_tenant_invite_flow_test.dart       # TC-07: Send invite (API)
+    08_tenant_accept_invite_test.dart     # TC-08: Accept invite (API)
+    09_lease_creation_flow_test.dart      # TC-09: Create lease (API)
+    10_document_upload_flow_test.dart     # TC-10: Document upload (API)
+    11_rent_payment_flow_test.dart        # TC-11: Rent payment (API)
+    12_move_out_flow_test.dart            # TC-12: Move-out request (API)
+    13_dashboard_navigation_test.dart     # TC-13: Tab navigation (UI)
   scripts/
-    run_e2e.sh             # Orchestration script for dual-simulator E2E runs
+    run_e2e.sh                            # Run full E2E suite
+    run_scenario.sh                       # Run single scenario by number
   docs/
-    QA_AUDIT_REPORT.md     # Full QA audit report (frontend + backend + E2E)
-  README.md                # This file
+    TEST_PLAN.md                          # Master test plan + checklist
+    QA_AUDIT_REPORT.md                    # Full QA audit (79 issues)
 ```
 
 ---
 
-## E2E Integration Tests
+## Quick Start
 
-### Overview
+### Run a single scenario
+```bash
+./scripts/run_scenario.sh 01              # Landlord registration
+./scripts/run_scenario.sh 04              # Add property flow
+./scripts/run_scenario.sh 13              # Dashboard navigation
+```
 
-The E2E tests automate the full AYRNOW user journey across **two iOS simulators** simultaneously:
-
-| Simulator | Role | Flow |
-|-----------|------|------|
-| iPhone 17 Pro (DF7E7361) | Landlord | Register -> Login -> Add Property -> Add Unit -> Set Rent -> Invite Tenant |
-| iPhone 16e (2620A3BC) | Tenant | Accept Invite -> Register -> Onboard -> View Lease -> Pay Rent |
-
-### Prerequisites
-
-1. **Backend running** on `localhost:8080`
-2. **PostgreSQL 16** running (`brew services start postgresql@16`)
-3. **Both simulators booted** (iOS 26)
-4. **Flutter 3.41.4+** installed
-5. `integration_test` package in app's `pubspec.yaml`:
-   ```yaml
-   dev_dependencies:
-     integration_test:
-       sdk: flutter
-   ```
-
-### Running Tests
-
-**Option 1: Full E2E suite (both simulators, sequential)**
+### Run all scenarios
 ```bash
 ./scripts/run_e2e.sh
 ```
 
-**Option 2: Individual test on specific simulator**
-```bash
-# Copy test files to the app's frontend directory first
-cp -r integration_test/ /path/to/ayrnow-mvp/frontend/integration_test/
+### Prerequisites
+1. Backend running on `localhost:8080`
+2. PostgreSQL 16 running
+3. iOS simulator booted
+4. Copy tests to app: `cp -r integration_test/ /path/to/ayrnow-mvp/frontend/integration_test/`
 
-# Run landlord flow on Sim 1
-cd /path/to/ayrnow-mvp/frontend
-flutter test integration_test/landlord_e2e_test.dart -d DF7E7361
+---
 
-# Run tenant flow on Sim 2
-flutter test integration_test/tenant_e2e_test.dart -d 2620A3BC
+## Test Scenarios (68 test cases)
+
+| # | Scenario | Cases | Type | Dependencies |
+|---|----------|-------|------|-------------|
+| 01 | Landlord Registration | 5 | UI | None |
+| 02 | Tenant Registration | 4 | UI | None |
+| 03 | Login Flow | 6 | UI | Existing accounts |
+| 04 | Add Property | 8 | UI | Landlord account |
+| 05 | Unit Management | 5 | API | Property exists |
+| 06 | Lease Settings | 4 | API | Property exists |
+| 07 | Tenant Invite | 5 | API | Vacant unit |
+| 08 | Tenant Accept Invite | 6 | API | TC-07 invite code |
+| 09 | Lease Creation | 5 | API | Property + tenant |
+| 10 | Document Upload | 4 | API | Tenant account |
+| 11 | Rent Payment | 5 | API | Active lease |
+| 12 | Move-Out Request | 5 | API | Active lease |
+| 13 | Dashboard Navigation | 6 | UI | Both accounts |
+
+### Test Types
+- **UI**: Flutter integration test — launches real app, taps buttons, fills forms on simulator
+- **API**: Dart HTTP calls — hits real backend API endpoints directly
+
+### Execution Order
+```
+Independent:  TC-01, TC-02, TC-03, TC-13
+Sequential:   TC-04 → TC-05 → TC-06
+Sequential:   TC-07 → TC-08
+Sequential:   TC-09 → TC-10 → TC-11
+After lease:  TC-12
 ```
 
-### Cross-Simulator Coordination
+---
 
-The landlord test writes shared data to `/tmp/ayrnow_e2e_*.txt`:
-- `landlord_email` — registered landlord email
-- `tenant_email` — tenant email used for invite
-- `invite_code` — invitation code for tenant to accept
-
-The tenant test reads these files before starting. The `run_e2e.sh` script handles this automatically, including a fallback API lookup for the invite code.
-
-### Test Accounts
+## Test Accounts
 
 | Role | Email | Password |
 |------|-------|----------|
 | Landlord (existing) | `landlord@ayrnow.app` | `Demo1234A` |
 | Tenant (existing) | `tenant@ayrnow.app` | `Demo1234A` |
-| E2E (generated) | `e2e_landlord_{timestamp}@test.ayrnow.app` | `Test1234A` |
-
-Password policy: 8+ characters, 1 uppercase, 1 lowercase, 1 digit.
+| E2E (auto-generated) | `e2e_{role}_{timestamp}@test.ayrnow.app` | `Test1234A` |
 
 ---
 
-## QA Audit Report
+## Documentation
 
-Full audit report is at [`docs/QA_AUDIT_REPORT.md`](docs/QA_AUDIT_REPORT.md).
-
-**Summary: 79 issues found**
-
-| Severity | Frontend | Backend | E2E | Total |
-|----------|----------|---------|-----|-------|
-| Critical | 5 | 6 | 3 | 14 |
-| High | 9 | 8 | 4 | 21 |
-| Medium | 11 | 8 | 2 | 21 |
-| Low | 15 | 8 | 0 | 23 |
-
----
-
-## Test Coverage Map
-
-### Frontend Screens Tested (E2E)
-
-| Screen | Tested | Notes |
-|--------|--------|-------|
-| SplashWelcomeScreen | Yes | |
-| LoginScreen | Yes | |
-| RegisterScreen (Step 1 & 2) | Yes | |
-| LandlordDashboard | Yes | Navigation only |
-| PropertyListScreen | Yes | Empty + populated states |
-| AddPropertyScreen (3 steps) | Yes | All 3 steps |
-| PropertyDetailScreen | Yes | Units tab |
-| UnitInviteWizardScreen | Partial | Blocked by Stepper widget issue |
-| InviteAcceptScreen | Not yet | Blocked by invite code coordination |
-| TenantDashboard | Not yet | |
-| TenantPaymentScreen | Not yet | Stripe opens external browser |
-| DocumentScreen | Not yet | FilePicker can't be automated |
-| LeaseSigningScreen | Not yet | |
-| MoveOutScreen | Not yet | |
-
-### Backend Endpoints Tested
-
-- 47/47 endpoints compile and respond (verified by existing API test suite)
-- See `QA_AUDIT_REPORT.md` for detailed endpoint audit
-
----
-
-## Contributing
-
-### Adding New Tests
-
-1. Create test files in `integration_test/`
-2. Use helpers from `helpers.dart` for common operations
-3. Follow the naming convention: `{role}_{flow}_test.dart`
-4. Update this README with coverage info
-5. Push to this repo
-
-### Reporting Issues
-
-Document QA findings in `docs/` with the naming convention:
-- `QA_AUDIT_REPORT.md` — main audit report (update in-place)
-- `QA_REGRESSION_{date}.md` — regression test results
-- `QA_RELEASE_{version}.md` — release validation results
-
-### Test Data Management
-
-- E2E tests generate unique emails per run (timestamp-based)
-- Tests clear `FlutterSecureStorage` before each run for idempotency
-- Backend data accumulates — periodically reset test DB if needed
-
----
-
-## Known Limitations
-
-1. **Stripe payments** open an external browser — cannot be fully automated in-app
-2. **File picker** (document upload) requires OS-level interaction — use API for testing
-3. **Flutter Stepper widget** renders all step content simultaneously — use widget Keys for reliable field targeting
-4. **Authgear social login** requires real OAuth flow — cannot be automated without Authgear test mode
+- **[TEST_PLAN.md](docs/TEST_PLAN.md)** — Master test plan with 68 test cases and pass/fail checklist
+- **[QA_AUDIT_REPORT.md](docs/QA_AUDIT_REPORT.md)** — Full QA audit: 79 issues across frontend, backend, and E2E
 
 ---
 
