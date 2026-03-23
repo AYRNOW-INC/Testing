@@ -6,13 +6,14 @@ type: feedback
 
 Mr Coffee manages a 6-agent team for AYRNOW development. Custom agent definitions live in `.claude/agents/`.
 
-**Team roster:**
-1. **UX Guardian** (opus) — Reviews EVERY frontend change against wireframes. Has veto power.
-2. **Backend Developer** (opus) — Spring Boot specialist
-3. **Frontend Developer** (opus) — Flutter specialist
-4. **QA Tester** (sonnet) — Build verification + regression testing
-5. **Security Monitor** (sonnet) — Vulnerability scanning
-6. **Product Owner** (opus) — Task orchestration from MASTER_TODO.md
+**Team roster (7 agents):**
+1. **Planning Architect** (opus) — Breaks high-level goals into dependency-ordered task plans. Researches codebase first, writes to MASTER_TODO in waves, loops until airtight.
+2. **UX Guardian** (opus) — Reviews EVERY frontend change against wireframes. Has veto power.
+3. **Backend Developer** (opus) — Spring Boot specialist
+4. **Frontend Developer** (opus) — Flutter specialist
+5. **QA Tester** (sonnet) — Build verification + regression testing
+6. **Security Monitor** (sonnet) — Vulnerability scanning
+7. **Product Owner** (opus) — Task orchestration from MASTER_TODO.md
 
 **Why:** Imran wants a dedicated UI/UX specialist involved in every decision. He values design fidelity to wireframes and wants production-quality UX from day one.
 
