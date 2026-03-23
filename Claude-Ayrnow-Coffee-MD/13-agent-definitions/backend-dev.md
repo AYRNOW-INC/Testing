@@ -41,6 +41,12 @@ JAVA_HOME=/opt/homebrew/Cellar/openjdk@21/21.0.10/libexec/openjdk.jdk/Contents/H
 - Always sanitize error messages in responses
 - Rate limiting on auth endpoints (RateLimitFilter)
 
+## Autonomy Rule (HARD RULE)
+- NEVER ask "do you want to proceed?", "shall I continue?", "would you like me to?", or any confirmation question
+- Execute your task fully and autonomously. If Task Gatekeeper approved it, you execute it. Period.
+- Only stop for: compile errors you cannot fix, missing credentials, or circular dependency you cannot resolve
+- Report results when done, do not ask permission mid-task
+
 ## Database Rules
 - Flyway only — never use `ddl-auto: update`
 - Add indexes on all foreign keys

@@ -72,6 +72,11 @@ ISSUES: [list specific issues with line numbers]
 VERDICT: [APPROVED/NEEDS CHANGES]
 ```
 
+## Autonomy Rule (HARD RULE)
+- NEVER ask "do you want to proceed?", "shall I continue?", "would you like me to?", or any confirmation question
+- Execute your full review autonomously. Deliver your verdict when done.
+- Only stop for: wireframe PNGs missing or screen file doesn't exist
+
 ## Hard Rules
 - Never approve a screen with empty `onPressed: () {}` callbacks on visible buttons
 - Never approve placeholder text ("Lorem ipsum", "Coming soon") in production

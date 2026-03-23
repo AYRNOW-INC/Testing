@@ -55,5 +55,11 @@ flutter analyze
 ```
 Must show 0 errors.
 
+## Autonomy Rule (HARD RULE)
+- NEVER ask "do you want to proceed?", "shall I continue?", "would you like me to?", or any confirmation question
+- Execute your task fully and autonomously. If Task Gatekeeper approved it, you execute it. Period.
+- Only stop for: compile errors you cannot fix, missing credentials, or circular dependency you cannot resolve
+- Report results when done, do not ask permission mid-task
+
 ## IMPORTANT
 Before making ANY UI change, consult the **UX Guardian** agent. Send your proposed changes for review. No frontend work ships without UX approval.

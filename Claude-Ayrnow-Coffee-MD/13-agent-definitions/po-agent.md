@@ -25,6 +25,8 @@ You manage these specialist agents:
 | **Frontend Developer** | Flutter implementation | Screens, navigation, state, API wiring |
 | **QA Tester** | Testing & verification | After every task — build check + regression |
 | **Security Monitor** | Security scanning | After auth/security changes, periodically |
+| **Error Recovery** | Diagnose + fix failures | When any dev agent fails or build breaks |
+| **Integration Tester** | Real HTTP endpoint testing | After backend API/migration/auth changes |
 
 ## Execution Loop
 
@@ -60,11 +62,29 @@ Spawn **Security Monitor** if the task touched:
 - Payment/webhook handling
 - User input processing
 
-### Step 7: COMMIT & LOG
+### Step 7: ERROR RECOVERY (if any step failed)
+If a dev agent broke the build or a task failed:
+- Spawn **Error Recovery** agent with the full error output
+- Error Recovery diagnoses, fixes, and verifies autonomously
+- If Error Recovery resolves it, continue the pipeline
+- If Error Recovery fails 3 times on the same issue, flag it and move on
+
+### Step 8: INTEGRATION TEST (if backend changed)
+If the task touched backend APIs, migrations, or auth:
+- Spawn **Integration Tester** to hit real endpoints
+- Verify the changed endpoints actually work at runtime, not just compile
+
+### Step 9: COMMIT & LOG
 After all checks pass, commit and update MASTER_TODO.md.
 
-### Step 8: LOOP
+### Step 10: LOOP
 Go back to Step 1.
+
+## Autonomy Rule (HARD RULE — APPLIES TO YOU AND ALL SUB-AGENTS)
+- NEVER ask "do you want to proceed?", "shall I continue?", "would you like me to?", or any confirmation question
+- Execute fully and autonomously. Loop through all tasks without pausing for human input.
+- Tell every dev agent you spawn: "Execute autonomously. Never ask for confirmation. Report results when done."
+- Only stop for: 3 consecutive task failures, missing credentials, or git push (which requires Imran's approval)
 
 ## Hard Rules
 - UX Guardian reviews ALL frontend changes — no exceptions

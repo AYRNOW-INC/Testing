@@ -11,6 +11,13 @@
 - **Authority:** Full — can spawn, direct, and shut down any agent
 - **Rules:** Always use swarm mode. Always git pull first. Never push without asking.
 
+### Task Gatekeeper — Approval Authority
+- **Role:** Evaluates any proposed task and delivers APPROVE / DENY / BLOCKED verdict
+- **Authority:** Gates whether a task enters the execution pipeline
+- **When to spawn:** When Mr Coffee receives a new task from Imran — route through Gatekeeper first
+- **Definition:** `.claude/agents/task-gatekeeper.md`
+- **Key rule:** Fully autonomous — checks scope, rules, feasibility, risk, priority — no human input needed
+
 ### Planning Architect — Task Strategist
 - **Role:** Breaks down high-level goals into detailed, dependency-ordered task plans
 - **Authority:** Read-only codebase + write to MASTER_TODO.md
@@ -53,6 +60,20 @@
 - **When to spawn:** After auth/security/payment changes, or periodically
 - **Definition:** `.claude/agents/security-monitor.md`
 
+### Error Recovery — Autonomous Debugger
+- **Role:** Diagnoses build failures, runtime errors, broken flows — traces root cause and fixes it
+- **Authority:** Full write access to fix broken code
+- **When to spawn:** Any time a dev agent fails, build breaks, or a task errors out
+- **Definition:** `.claude/agents/error-recovery.md`
+- **Key rule:** Diagnose → fix → verify → report. Never asks permission. Never leaves code in a broken state.
+
+### Integration Tester — Runtime Verifier
+- **Role:** Makes real HTTP requests to the running backend, verifies full request-response cycles
+- **Authority:** Read-only + bash (curl, API calls)
+- **When to spawn:** After backend API changes, migration changes, auth changes, or before commits
+- **Definition:** `.claude/agents/integration-tester.md`
+- **Key rule:** Goes beyond compile checks — actually hits endpoints with test accounts and verifies responses
+
 ### Product Owner — Task Orchestrator
 - **Role:** Reads MASTER_TODO, plans tasks, spawns dev agents, verifies
 - **Authority:** Orchestration only — never writes code
@@ -81,18 +102,24 @@ Imran gives high-level goal (e.g., "add maintenance module")
 ### Pattern 1: Single Feature (most common)
 ```
 Mr Coffee receives task from Imran
+  → Task Gatekeeper evaluates → APPROVE
   → Spawns Backend Dev + Frontend Dev (parallel)
+  → If any agent fails → Error Recovery fixes it automatically
   → Frontend Dev completes → Spawns UX Guardian (review)
   → UX Guardian approves → Spawns QA Tester (verify)
-  → QA passes → Report to Imran
+  → If backend changed → Integration Tester hits real endpoints
+  → All pass → Report to Imran
 ```
 
 ### Pattern 2: Backend-Only Change
 ```
 Mr Coffee receives task
+  → Task Gatekeeper evaluates → APPROVE
   → Spawns Backend Dev
-  → Backend Dev completes → Spawns QA Tester
-  → QA passes → Report to Imran
+  → If build fails → Error Recovery fixes it
+  → Backend Dev completes → QA Tester (compile)
+  → Integration Tester (real HTTP requests)
+  → All pass → Report to Imran
 ```
 
 ### Pattern 3: UI/UX Overhaul
@@ -124,6 +151,25 @@ Mr Coffee spawns Security Monitor
   → Mr Coffee spawns Backend/Frontend Dev to fix issues
   → Security Monitor re-scans to verify fixes
 ```
+
+---
+
+## Autonomy Rule (MANDATORY — ALL AGENTS, ALL PATTERNS)
+
+**NEVER** ask "do you want to proceed?", "shall I continue?", "would you like me to?", "ready?", or ANY confirmation/approval question.
+
+This applies to:
+- Mr Coffee (never ask Imran for confirmation mid-task)
+- PO Agent (never pause between tasks)
+- All dev agents (never ask before making changes)
+- All reviewer agents (deliver verdict, don't ask if you should review)
+
+**Task approval is handled by the Task Gatekeeper agent.** Once a task passes the Gatekeeper, every downstream agent executes without asking. The only things that still require Imran's explicit approval:
+- `git push`
+- AWS deploy
+- Spending money (production Stripe charges, new paid services)
+
+If an agent is blocked by missing credentials or 3+ consecutive failures, it reports the blocker and moves on — it does NOT ask "should I continue?".
 
 ---
 
