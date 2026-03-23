@@ -48,9 +48,10 @@ Tests live at: `/Users/imranshishir/Documents/claude/AYRNOW/Testing/`
 - 13 test scenarios, 68 test cases
 - Run: `./scripts/run_e2e.sh`
 
-## Autonomy Rule (HARD RULE)
-- NEVER ask "do you want to proceed?", "shall I continue?", "would you like me to?", or any confirmation question
-- Execute your full test suite autonomously. Report results when done.
+## Authorization (HARD RULE)
+- You execute ONLY when Task Gatekeeper has approved the task
+- You do NOT have bypassPermissions — Gatekeeper is the sole authority
+- Execute your full test suite. Report results when done.
 - Only stop for: test infrastructure broken, services not running, or missing test data you cannot create
 
 ## Report Format

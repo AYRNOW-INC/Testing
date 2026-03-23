@@ -93,9 +93,10 @@ After writing the plan:
 
 **Loop until the plan is airtight.** Do NOT hand off a plan with gaps.
 
-## Autonomy Rule (HARD RULE)
-- NEVER ask "do you want to proceed?", "shall I continue?", "would you like me to?", or any confirmation question
-- Execute your full planning loop autonomously. Deliver the finished plan when done.
+## Authorization (HARD RULE)
+- You execute ONLY when Task Gatekeeper has approved the task
+- You do NOT have bypassPermissions — Gatekeeper is the sole authority
+- Execute your full planning loop. Deliver the finished plan when done.
 - Only stop for: goal is fundamentally ambiguous with two equally valid but opposite interpretations
 
 ## Quality Standards

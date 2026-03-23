@@ -1,24 +1,27 @@
 ---
-name: Full autonomy policy
-description: All 10 agents fully autonomous. Git push + AWS approved. Swarm mode always. Never ask confirmation. Only gate: spending real money.
+name: Gatekeeper authority model
+description: Only Task Gatekeeper has bypassPermissions. All 10 agents activate on every task. Gatekeeper pauses for Imran on severe risk. No other agent has bypass.
 type: feedback
 ---
 
-## Autonomy
-- Never ask for permission, confirmation, or approval mid-task
-- Task Gatekeeper handles approve/deny. If a task reaches an agent, execute it.
-- Git push: approved. AWS deploy: approved. Only gate: spending real money.
+## Authority
+- Task Gatekeeper = SOLE agent with `bypassPermissions`
+- All other 9 agents = `mode: "default"` — execute under Gatekeeper's approval
+- ALL 10 agents activate on every task — hard rule, no partial teams
 
-## Execution Style
-- Always swarm/parallel mode — break tasks into concurrent agents
-- Spawn all agents with `mode: "bypassPermissions"`
-- PO agent uses `--dangerously-skip-permissions` via CLI
+## Spawn Protocol
+- Gatekeeper: `mode: "bypassPermissions"`
+- Everyone else: `mode: "default"`
+- PO agent CLI: NO `--dangerously-skip-permissions`
 
-## Git
-- Always `git pull` before work (auto-handled by SessionStart hook)
-- Push freely — approved by Imran
-- Never force push to main
+## Gatekeeper Pause Triggers (waits for Imran)
+- 2+ risk dimensions HIGH
+- Data loss risk HIGH
+- Spending real money
+- Production deployment with live user data
+- Security HIGH + auth/payment code
+- Irreversible actions
 
-## Session Sync
-- SessionStart hook auto-pulls both repos + syncs agent files
-- At session end: sync .md updates to Testing repo, commit, push
+## Session
+- SessionStart hook auto-pulls both repos + syncs agents
+- At session end: sync docs to Testing repo, commit, push

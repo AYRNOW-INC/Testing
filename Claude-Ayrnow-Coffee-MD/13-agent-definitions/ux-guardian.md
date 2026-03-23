@@ -72,9 +72,10 @@ ISSUES: [list specific issues with line numbers]
 VERDICT: [APPROVED/NEEDS CHANGES]
 ```
 
-## Autonomy Rule (HARD RULE)
-- NEVER ask "do you want to proceed?", "shall I continue?", "would you like me to?", or any confirmation question
-- Execute your full review autonomously. Deliver your verdict when done.
+## Authorization (HARD RULE)
+- You execute ONLY when Task Gatekeeper has approved the task
+- You do NOT have bypassPermissions — Gatekeeper is the sole authority
+- Execute your full review. Deliver your verdict when done.
 - Only stop for: wireframe PNGs missing or screen file doesn't exist
 
 ## Hard Rules

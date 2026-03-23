@@ -12,13 +12,14 @@ AYRNOW is a landlord-tenant property management platform MVP.
 - Lease signing: OpenSign (planned)
 - NO DOCKER. Monolithic architecture only.
 
-## Agent System — 10 Autonomous Agents
-This project uses a 10-agent autonomous system. Agent definitions: `.claude/agents/`. Playbook: `.mr-coffee/TEAM_PLAYBOOK.md`.
+## Agent System — 10 Agents, Gatekeeper Authority
+This project uses a 10-agent system. Agent definitions: `.claude/agents/`. Playbook: `.mr-coffee/TEAM_PLAYBOOK.md`.
 
-### Permission Architecture (3 layers)
-1. **`.claude/settings.json`** — 86 allow rules for interactive sessions (auto-allows all tools, git, mvn, flutter, bash, aws). Zero deny rules.
-2. **Agent spawn mode** — ALL agents MUST be spawned with `mode: "bypassPermissions"`. No exceptions.
-3. **`po_agent.sh`** — Uses `--dangerously-skip-permissions` for CLI-launched PO sessions.
+### Permission Architecture
+- **Task Gatekeeper** is the ONLY agent with `bypassPermissions`
+- **All other 9 agents** run with `mode: "default"` — authorized by Gatekeeper's approval
+- **Every task** activates ALL 10 agents — no partial teams
+- **Gatekeeper can PAUSE** for Imran on high-risk/emergency situations
 
 ### PO Agent (CLI)
 ```bash
@@ -26,21 +27,17 @@ cd /Users/imranshishir/Documents/claude/AYRNOW/ayrnow-mvp
 ./alwaysOnProductOwnerAgent/po_agent.sh
 ```
 
-The PO Agent reads `alwaysOnProductOwnerAgent/MASTER_TODO.md` and autonomously executes all tasks by spawning developer sub-agents via Claude Code CLI.
-
 ## Git Workflow (MANDATORY)
-- **Always `git pull` before starting any work.** Never code against a stale local repo.
-- **Always `git pull` before committing.** If remote has new commits, pull and rebase/merge first.
-- **Never push without confirming with the user first.**
+- **Always `git pull` before starting any work.**
+- **Always `git pull` before committing.**
 - **Never force push.**
-- If pull reveals conflicts, resolve them before proceeding — do not skip or discard.
+- If pull reveals conflicts, resolve them before proceeding.
 
-## Autonomy Rule (MANDATORY — ALL AGENTS)
-- NEVER ask "do you want to proceed?", "shall I continue?", "would you like me to?", "ready?", or ANY confirmation/approval question
-- All agents execute fully and autonomously once a task is given
-- Task approval is handled by the **Task Gatekeeper** agent (`.claude/agents/task-gatekeeper.md`) — if a task reaches an agent, it's already approved
-- git push and AWS deploy are fully approved — no need to ask
-- Only exceptions that warrant stopping: spending real money, missing external credentials, 3+ consecutive failures
+## Task Execution Rule (MANDATORY)
+- Every task MUST go through Task Gatekeeper first
+- Gatekeeper approves → ALL 10 agents activate
+- Gatekeeper pauses → wait for Imran (high-risk/emergency only)
+- ALL 10 agents kick in on every task — hard rule, no exceptions
 
 ## Critical Rules
 - `lib/main.dart` owns `/`, `/login`, `/home` routes — NEVER override
